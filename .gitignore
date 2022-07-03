@@ -1,0 +1,9 @@
+composer.lock
+
+vendor/
+docker/
+db/
+node_modules/
+dist/
+
+**/.DS_Store

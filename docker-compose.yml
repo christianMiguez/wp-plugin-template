@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:5.7.2-php7.3-apache
+    volumes:
+      - .:/var/www/html/wp-content/plugins/op-plugin-name
+      - ./docker/plugins:/var/www/html/wp-content/plugins
+      - ./docker/uploads:/var/www/html/wp-content/uploads
+      - ./docker/themes:/var/www/html/wp-content/themes
+      - ./docker/tmp:/var/www/html/wp-content/tmp
+    links:
+      - db
+    ports:
+      - "8000:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DEBUG : 1
+      WORDPRESS_CONFIG_EXTRA: |
+        define( 'WP_DEBUG_LOG', 'wp-content/tmp/debug.log' );
+        define('WP_DEBUG_DISPLAY', false );
+        define( 'SAVEQUERIES', true );
+      ACF_SAVE_POINT: /var/www/html/wp-content/plugins/op-plugin-name/acf-json
+      DEV_ACF_SAVE_POINT: development
+  db:
+    image: mysql:5.7
+    restart: always
+    ports:
+      - 3306
+    volumes:
+      - ./docker/db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress

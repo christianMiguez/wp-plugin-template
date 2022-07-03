@@ -1,0 +1,38 @@
+name: Staging CD to wp_freemium_mu using composer
+
+on:
+  push:
+    tags:
+      - 'v*RC'
+
+  workflow_dispatch:
+  
+jobs:
+  staging_cd_to_wp_freemium_mu:
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout repo
+    - uses: actions/checkout@v2
+      with:
+        path: plugin
+    - name: Checkout repo and get version
+      id: checkout_prerelease
+      run: echo ::set-output name=version::${GITHUB_REF#refs/*/}
+    # Checkout parent repo
+    - name: Checkout parent repo
+      uses: actions/checkout@v2
+      with:
+        repository: onpointglobal/wp_freemium_mu
+        ref: staging
+        token: ${{ secrets.PAT }}
+        path: main
+    # Update theme at wp_freemium_mu
+    - name: Update composer dependency at wp_freemium_mu specific branch
+      uses: onpointglobal/action-staging-to-parent-composer@v3
+      with:
+        branch: staging
+        composer_parent_path: "main/wordpress"
+        composer_project_path: 'plugin'
+        secret: ${{ secrets.PAT }}
+        version: ${{ steps.checkout_prerelease.outputs.version }}
+        composer_wpmudev: ${{ secrets.WPMUDEV }}

@@ -1,0 +1,6 @@
+docker-compose.yml
+.editorconfig
+composer.lockn
+vendor/
+phpcs.xml.dist
+config/

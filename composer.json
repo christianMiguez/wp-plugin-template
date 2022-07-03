@@ -1,0 +1,38 @@
+{
+  "name": "onpoint/op-plugin-name",
+  "description": "",
+  "type": "wordpress-plugin",
+  "require": {
+    "composer/installers": "^1.0"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.6",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
+    "wp-coding-standards/wpcs": "^2.3",
+    "brainmaestro/composer-git-hooks": "^2.8"
+  },
+  "scripts": {
+    "cghooks": "vendor/bin/cghooks",
+    "post-install-cmd": "cghooks add --ignore-lock",
+    "post-update-cmd": "cghooks update",
+    "analyse": "./vendor/bin/phpcs ."
+  },
+  "extra": {
+    "hooks": {
+      "config": {
+        "stop-on-failure": [
+          "pre-commit"
+        ]
+      },
+      "pre-commit": [
+        "sh ./config/code-health-check.sh"
+      ]
+    }
+  },
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "OnPoint"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+name: Tag distributable artifact
+
+on:
+  push:
+    branches: [ main, master, staging ]
+
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PAT }}
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v5.1
+        with:
+          github_token: ${{ secrets.PAT }}
+          dry_run: true
+          pre_release_branches: staging
+          append_to_pre_release_tag: RC
+      - name: Build artifact and set tag.
+        id: build_and_set_tag
+        uses: onpointglobal/action-tag-dist-artifact@v2
+        with:
+          tag_version: ${{ steps.tag_version.outputs.new_version }}
+          file_to_bump_version: "op_tools_plugin.php"
+      - name: Send slack notification
+        uses: rtCamp/action-slack-notify@v2
+        if: ${{ always() }}
+        env:
+          SLACK_CHANNEL: app-wordpress
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: ':building_construction: ${{ github.event.repository.name }} ${{ job.status }} on building dist files with tag: ${{ steps.tag_version.outputs.new_version }}'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_FOOTER: 'Powered by Alfred bot'
